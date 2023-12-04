@@ -106,6 +106,15 @@ public class Main {
         reader.close();
     }
 
+    /**
+     * Calculate sum of part numbers in current line. Previous and next lines are needed to find part numbers that
+     * connected to top/bottom symbols
+     *
+     * @param previous previous line of input
+     * @param current current line of input
+     * @param next next lint of input
+     * @return sum of part numbers
+     */
     private static int getSumOfParts(String previous, String current, String next) {
         int sumOfLineParts = 0;
         int stringLength = current.length();
@@ -142,6 +151,15 @@ public class Main {
         return sumOfLineParts;
     }
 
+    /**
+     * Calculate sum of gear ratios in current line. Previous and next lines are needed to find gears that connected to
+     * top/bottom parts
+     *
+     * @param previous previous line of input
+     * @param current current line of input
+     * @param next next lint of input
+     * @return sum of gear ratios
+     */
     private static int getSumOfGearRatios(String previous, String current, String next) {
         List<String> adjustedNumbers = new ArrayList<>();
         int sumOfGearRatiosInLine = 0;
@@ -166,10 +184,16 @@ public class Main {
         return sumOfGearRatiosInLine;
     }
 
+    /**
+     * Find all numbers adjusted to index (e.g. number last digit in index - 1 position, number first digit in index + 1
+     * position or any number digit in index position)
+     *
+     * @return list of adjusted numbers (1 or 2 or null)
+     */
     private static List<String> getAdjustedNumbers(String line, int index) {
         List<String> adjustedNumbers = new ArrayList<>();
 
-        if (isDigit(line.charAt(index))) {
+        if (isCharacterInSequence(DIGITS, line.charAt(index))) {
             adjustedNumbers.add(extractNumberFromString(line, index));
         } else {
             adjustedNumbers.add(extractNumberFromString(line, index - 1));
@@ -179,19 +203,24 @@ public class Main {
         return adjustedNumbers.stream().filter(Objects::nonNull).collect(Collectors.toList());
     }
 
+    /**
+     * Extract number that have digit in index position
+     *
+     * @return number as string
+     */
     private static String extractNumberFromString(String line, int index) {
         String number = null;
         int lineLength = line.length();
-        if (index >= 0 && index < lineLength && isDigit(line.charAt(index))) {
+        if (index >= 0 && index < lineLength && isCharacterInSequence(DIGITS, line.charAt(index))) {
             int numberStart = index;
             int numberEnd = index;
             while (true) {
                 int exit = 0;
-                if (numberStart > -1 && isDigit(line.charAt(numberStart))) {
+                if (numberStart > -1 && isCharacterInSequence(DIGITS, line.charAt(numberStart))) {
                     numberStart = numberStart - 1;
                     exit = exit + numberStart == -1 ? 0 : 1;
                 }
-                if (numberEnd < lineLength && isDigit(line.charAt(numberEnd))) {
+                if (numberEnd < lineLength && isCharacterInSequence(DIGITS, line.charAt(numberEnd))) {
                     numberEnd = numberEnd + 1;
                     exit = exit + numberEnd == lineLength ? 0 : 1;
                 }
@@ -215,21 +244,15 @@ public class Main {
     private static boolean verifySymbolsAround(String lineToVerify, int index, boolean verifyIndexPosition) {
         int prevIndex = index - 1;
         int nextIndex = index + 1;
-        return (prevIndex > 0 && isSymbol(lineToVerify.charAt(prevIndex)))
-                || (verifyIndexPosition && isSymbol(lineToVerify.charAt(index)))
-                || (nextIndex < lineToVerify.length() && isSymbol(lineToVerify.charAt(nextIndex)));
+        return (prevIndex > 0 && !isCharacterInSequence(NOT_SYMBOLS, lineToVerify.charAt(prevIndex)))
+                || (verifyIndexPosition && !isCharacterInSequence(NOT_SYMBOLS, lineToVerify.charAt(index)))
+                || (nextIndex < lineToVerify.length() && !isCharacterInSequence(NOT_SYMBOLS, lineToVerify.charAt(nextIndex)));
     }
 
     /**
-     * Check is character not digit or period
-     * @param ch character to check
-     * @return is 'symbol'
+     * @return true if character in the sequence
      */
-    private static boolean isSymbol(char ch) {
-        return NOT_SYMBOLS.indexOf(ch) == -1;
-    }
-
-    private static boolean isDigit(char ch) {
-        return DIGITS.indexOf(ch) != -1;
+    private static boolean isCharacterInSequence(String sequence, char character) {
+        return sequence.indexOf(character) != -1;
     }
 }
