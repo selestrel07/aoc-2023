@@ -23,31 +23,25 @@ public class Main {
             while (reader.hasNextLine()) {
                 String data = reader.nextLine();
                 String gameCases = data.split(":")[1];
+                Map<String, Integer> fewestCubesMap = composeFewestCubesMap(gameCases);
 
                 //first puzzle
                 int gameId = Integer.parseInt(data.split(":")[0].split(" ")[1]);
-                boolean isPossible = Arrays.stream(gameCases.split(";"))
-                        .allMatch(grub -> isGamePossible(bag, composeGameMap(grub)));
+                boolean isPossible = isGamePossible(bag, fewestCubesMap);
                 result += isPossible ? gameId : 0;
 
                 //second puzzle
                 sumOfPower += composeFewestCubesMap(gameCases).values().stream()
                         .reduce(1, (a, b) -> a * b);
             }
+
+            reader.close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
 
         System.out.println("First puzzle result: " + result);
         System.out.println("Second puzzle result: " + sumOfPower);
-    }
-
-    private static Map<String, Integer> composeGameMap(String caseDescription) {
-        Map<String, Integer> map = new HashMap<>();
-        Arrays.stream(caseDescription.split(", ")).map(String::trim)
-                .map(c -> c.split(" "))
-                .forEach(cube -> map.put(cube[1], Integer.valueOf(cube[0])));
-        return map;
     }
 
     private static Map<String, Integer> composeFewestCubesMap(String gameDescription) {
